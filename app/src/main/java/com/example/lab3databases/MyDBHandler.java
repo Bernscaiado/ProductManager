@@ -51,4 +51,16 @@ public class MyDBHandler extends SQLiteOpenHelper {
         db.insert(TABLE_NAME, null, values);
         db.close();
     }
+
+    public Cursor findByName(String keyword) {
+        SQLiteDatabase sqLiteDatabase = getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from " + TABLE_NAME + " where " + COLUMN_PRODUCT_NAME + " = ?" ,new String[] { keyword });
+        return cursor;
+    }
+
+    public void deleteByName(String keyword) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, "name = ? ", new String[]{keyword});
+    }
+
 }

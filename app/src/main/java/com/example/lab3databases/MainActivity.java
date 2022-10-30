@@ -67,14 +67,22 @@ public class MainActivity extends AppCompatActivity {
         findBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Find product", Toast.LENGTH_SHORT).show();
+                String name = productName.getText().toString();
+                productName.setText("");
+                productPrice.setText("");
+                findByProductsName(name);
+                //Toast.makeText(MainActivity.this, "Find product", Toast.LENGTH_SHORT).show();
             }
         });
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Delete product", Toast.LENGTH_SHORT).show();
+                String name = productName.getText().toString();
+                productName.setText("");
+                productPrice.setText("");
+                deleteByName(name);
+                //Toast.makeText(MainActivity.this, "Delete product", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -91,6 +99,51 @@ public class MainActivity extends AppCompatActivity {
             while (cursor.moveToNext()) {
                 productList.add(cursor.getString(1) + " (" +cursor.getString(2)+")");
             }
+        }
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+    }
+
+    private void findByProductsName(String name){
+        productList.clear();
+        Cursor cursor = dbHandler.findByName(name);
+        if (cursor.moveToFirst()) {
+
+            Product product = new Product();
+            product.setId(cursor.getInt(0));
+            product.setProductName(cursor.getString(1));
+            product.setProductPrice(Double.parseDouble(cursor.getString(2)));
+            productList.add(product.toString());
+        }
+
+        else{
+            productList.add("NO SUCH PRODUCT EXISTS");
+        }
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+    }
+
+
+
+    private void deleteByName(String name){
+        productList.clear();
+        dbHandler.deleteByName(name);
+
+        Cursor cursor = dbHandler.getData();
+        if (cursor.moveToFirst()) {
+            productList.add("DELETION WAS SUCCESSFUL");
+            do {
+                Product product = new Product();
+                product.setId(cursor.getInt(0));
+                product.setProductName(cursor.getString(1));
+                product.setProductPrice(Double.parseDouble(cursor.getString(2)));
+                productList.add(product.toString());
+
+            } while (cursor.moveToNext());
+        }
+        else{
+            productList.add("DELETION WAS UNSUCCESSFUL BECAUSE NO SUCH PRODUCT EXISTS");
         }
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
