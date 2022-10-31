@@ -62,5 +62,25 @@ public class MyDBHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, "name = ? ", new String[]{keyword});
     }
+    public Cursor findByPrice(String keyword) {
+        SQLiteDatabase sqLiteDatabase = getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from " + TABLE_NAME + " where " + COLUMN_PRODUCT_PRICE + " = ?" ,new String[] { keyword });
+        return cursor;
+    }
 
+    public void deleteByPrice(String keyword) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, "price = ? ", new String[]{keyword});
+    }
+
+    public Cursor findProduct(String name, String price) {
+        SQLiteDatabase sqLiteDatabase = getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery("select * from " + TABLE_NAME + " where " + COLUMN_PRODUCT_PRICE + " = ? and " + COLUMN_PRODUCT_PRICE + "= ?" ,new String[] { name, price });
+        return cursor;
+    }
+
+    public void deleteProduct(String name, String price) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, "name = ? and price = ?", new String[]{name, price});
+    }
 }

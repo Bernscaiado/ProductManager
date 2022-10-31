@@ -1,5 +1,7 @@
 package com.example.lab3databases;
 
+import static com.google.android.material.internal.ContextUtils.getActivity;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.database.Cursor;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     TextView productId;
@@ -68,9 +71,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String name = productName.getText().toString();
+                String price = productPrice.getText().toString();
                 productName.setText("");
-                productPrice.setText("");
-                findByProductsName(name);
+
+                if(name.length() > 0 && price.length() >0)
+                    findProduct(name, price);
+                else if (name.length() > 0)
+                    findByProductsName(name);
+                else if(price.length() > 0)
+                    findByProductsPrice(price);
+                else {
+                    emptyFieldException();
+                }
+
                 //Toast.makeText(MainActivity.this, "Find product", Toast.LENGTH_SHORT).show();
             }
         });
@@ -79,9 +92,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String name = productName.getText().toString();
+                String price = productPrice.getText().toString();
+                System.out.println("Name: "+name.length()+"\tPrice: "+price.length());
                 productName.setText("");
                 productPrice.setText("");
-                deleteByName(name);
+                if(name.length() > 0 && price.length() > 0)
+                    deleteProduct(name, price);
+                else if(name.length() > 0)
+                    deleteByName(name);
+                else if(price.length() > 0)
+                    deleteByPrice(price);
+                else {
+                    emptyFieldException();
+                }
                 //Toast.makeText(MainActivity.this, "Delete product", Toast.LENGTH_SHORT).show();
             }
         });
@@ -147,6 +170,101 @@ public class MainActivity extends AppCompatActivity {
             productList.add("DELETION WAS UNSUCCESSFUL BECAUSE NO SUCH PRODUCT EXISTS");
         }
 
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+    }
+
+
+    private void findByProductsPrice(String price){
+        productList.clear();
+        Cursor cursor = dbHandler.findByPrice(price);
+        if (cursor.moveToFirst()) {
+            do{
+                Product product = new Product();
+                product.setId(cursor.getInt(0));
+                product.setProductName(cursor.getString(1));
+                product.setProductPrice(Double.parseDouble(cursor.getString(2)));
+                productList.add(product.toString());
+            }while(cursor.moveToNext());
+        }
+
+        else{
+            productList.add("NO SUCH PRODUCT EXISTS");
+        }
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+    }
+
+
+    private void deleteByPrice(String price){
+        productList.clear();
+        dbHandler.deleteByPrice(price);
+
+        Cursor cursor = dbHandler.getData();
+        if (cursor.moveToFirst()) {
+            productList.add("DELETION WAS SUCCESSFUL");
+            do {
+                Product product = new Product();
+                product.setId(cursor.getInt(0));
+                product.setProductName(cursor.getString(1));
+                product.setProductPrice(Double.parseDouble(cursor.getString(2)));
+                productList.add(product.toString());
+
+            } while (cursor.moveToNext());
+        }
+        else{
+            productList.add("DELETION WAS UNSUCCESSFUL BECAUSE NO SUCH PRODUCT EXISTS");
+        }
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+    }
+
+
+    private void findProduct(String name, String price){
+        productList.clear();
+        Cursor cursor = dbHandler.findProduct(name, price);
+        if (cursor.moveToFirst()) {
+            do{
+                Product product = new Product();
+                product.setId(cursor.getInt(0));
+                product.setProductName(cursor.getString(1));
+                product.setProductPrice(Double.parseDouble(cursor.getString(2)));
+                productList.add(product.toString());
+            }while(cursor.moveToNext());
+        }
+
+        else{
+            productList.add("NO SUCH PRODUCT EXISTS");
+        }
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+    }
+
+    private void deleteProduct(String name, String price){
+        productList.clear();
+        dbHandler.deleteProduct(name, price);
+        Cursor cursor = dbHandler.getData();
+        if (cursor.moveToFirst()) {
+            do{
+                Product product = new Product();
+                product.setId(cursor.getInt(0));
+                product.setProductName(cursor.getString(1));
+                product.setProductPrice(Double.parseDouble(cursor.getString(2)));
+                productList.add(product.toString());
+            }while(cursor.moveToNext());
+        }
+
+        else{
+            productList.add("DELETION WAS UNSUCCESSFUL BECAUSE NO SUCH PRODUCT EXISTS");
+        }
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
+        productListView.setAdapter(adapter);
+    }
+
+    private void emptyFieldException(){
+        productList.clear();
+        productList.add("This Operation cannot be performed. Please complete at least one field.");
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
         productListView.setAdapter(adapter);
     }
