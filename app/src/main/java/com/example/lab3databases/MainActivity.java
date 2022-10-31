@@ -109,12 +109,13 @@ public class MainActivity extends AppCompatActivity {
         productList.clear();
         Cursor cursor = dbHandler.findByName(name);
         if (cursor.moveToFirst()) {
-
-            Product product = new Product();
-            product.setId(cursor.getInt(0));
-            product.setProductName(cursor.getString(1));
-            product.setProductPrice(Double.parseDouble(cursor.getString(2)));
-            productList.add(product.toString());
+            do{
+                Product product = new Product();
+                product.setId(cursor.getInt(0));
+                product.setProductName(cursor.getString(1));
+                product.setProductPrice(Double.parseDouble(cursor.getString(2)));
+                productList.add(product.toString());
+            }while(cursor.moveToNext());
         }
 
         else{
