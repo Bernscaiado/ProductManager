@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 String name = productName.getText().toString();
                 String price = productPrice.getText().toString();
                 productName.setText("");
+                productPrice.setText("");
 
                 if(name.length() > 0 && price.length() >0)
                     findProduct(name, price);
@@ -148,15 +149,17 @@ public class MainActivity extends AppCompatActivity {
         productListView.setAdapter(adapter);
     }
 
-
-
     private void deleteByName(String name){
         productList.clear();
-        dbHandler.deleteByName(name);
-
+        boolean flag = dbHandler.deleteByName(name);
         Cursor cursor = dbHandler.getData();
-        if (cursor.moveToFirst()) {
+
+        if (flag)
             productList.add("DELETION WAS SUCCESSFUL");
+        else
+            productList.add("DELETION WAS UNSUCCESSFUL, BECAUSE NO SUCH PRODUCT EXISTS.");
+        if (cursor.moveToFirst()) {
+
             do {
                 Product product = new Product();
                 product.setId(cursor.getInt(0));
@@ -165,9 +168,6 @@ public class MainActivity extends AppCompatActivity {
                 productList.add(product.toString());
 
             } while (cursor.moveToNext());
-        }
-        else{
-            productList.add("DELETION WAS UNSUCCESSFUL BECAUSE NO SUCH PRODUCT EXISTS");
         }
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
@@ -198,11 +198,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void deleteByPrice(String price){
         productList.clear();
-        dbHandler.deleteByPrice(price);
-
+        boolean flag = dbHandler.deleteByPrice(price);
         Cursor cursor = dbHandler.getData();
-        if (cursor.moveToFirst()) {
+
+        if (flag)
             productList.add("DELETION WAS SUCCESSFUL");
+        else
+            productList.add("DELETION WAS UNSUCCESSFUL BECAUSE NO SUCH PRODUCT EXISTS");
+
+        if (cursor.moveToFirst()) {
             do {
                 Product product = new Product();
                 product.setId(cursor.getInt(0));
@@ -211,9 +215,6 @@ public class MainActivity extends AppCompatActivity {
                 productList.add(product.toString());
 
             } while (cursor.moveToNext());
-        }
-        else{
-            productList.add("DELETION WAS UNSUCCESSFUL BECAUSE NO SUCH PRODUCT EXISTS");
         }
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
@@ -243,8 +244,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void deleteProduct(String name, String price){
         productList.clear();
-        dbHandler.deleteProduct(name, price);
+        boolean flag = dbHandler.deleteProduct(name, price);
         Cursor cursor = dbHandler.getData();
+        if (flag)
+            productList.add("DELETION WAS SUCCESSFUL");
+        else
+            productList.add("DELETION WAS UNSUCCESSFUL BECAUSE NO SUCH PRODUCT EXISTS");
+
         if (cursor.moveToFirst()) {
             do{
                 Product product = new Product();
@@ -255,9 +261,7 @@ public class MainActivity extends AppCompatActivity {
             }while(cursor.moveToNext());
         }
 
-        else{
-            productList.add("DELETION WAS UNSUCCESSFUL BECAUSE NO SUCH PRODUCT EXISTS");
-        }
+
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, productList);
         productListView.setAdapter(adapter);
     }
